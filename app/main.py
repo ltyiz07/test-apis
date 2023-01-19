@@ -16,7 +16,7 @@ page = \
 <head>
 </head>
 <body>
-    this is test page.
+    this is new test page.
 
     <script>
         console.log("start");
