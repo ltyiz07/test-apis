@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, Request
+from fastapi import FastAPI, Response, Request, HTTPException
 from fastapi.responses import ORJSONResponse, HTMLResponse
 from pydantic import BaseModel
 
@@ -48,6 +48,7 @@ page = \
 def api_test(req: Request):
     return {"request_header": req.headers}
 
+
 @app.get("/test/role/sub/")
 def sub_role_test(req: Request):
     test_response = {"test_response": {"access": "granted", "status": 200, "user_role": "role"} }
@@ -64,6 +65,7 @@ def sub_role_test(req: Request):
     test_response["test_response"]["user_role"] = user_role
 
     return test_response
+
 
 @app.get("/test/role/main/")
 def sub_role_test(req: Request):
@@ -111,19 +113,26 @@ def test_api():
 
     return {"data": "test_value_1", "data_2": "test_value_2"}
 
-@app.get("/test/text/", status_code=200)
-def test_api():
-
-    return "this is test text"
 
 class Auth(BaseModel):
     loginId: str
     loginPw: str
     services: list[str]
 
+
 @app.post("/test/text/", status_code=200)
 def test_api_with_param(auth: Auth):
     print(auth)
     auth.loginId += " returned"
     return auth
-    
+
+
+@app.post("/test/login", status_code=200)
+def test_login(auth: Auth):
+    if (auth.loginId == "test123") & (auth.loginPw == "asd123"):
+        return {
+            "loginId": auth.loginId,
+            "token": "asd123test.token.abc"
+        }
+    else:
+        raise HTTPException(status_code=404, detail="not valid password")
